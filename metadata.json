@@ -1,0 +1,8 @@
+{
+  "name": "HealthTown Clinic Agent",
+  "description": "A next-generation Clinic Agent web app powered by Gemini Agentic AI. Features Smart Consultation, Real-time Prescription, and Emergency Response systems.",
+  "requestFramePermissions": [
+    "microphone",
+    "geolocation"
+  ]
+}

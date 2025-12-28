@@ -1,5 +1,5 @@
 
-import { LogEntry } from './schemas';
+import { LogEntry } from '../types';
 
 // Simulated Database for Logs
 const LOG_DATABASE: LogEntry[] = [];
@@ -16,7 +16,7 @@ export const aiLoggingAgent = {
     response: any,
     success: boolean = true
   ): Promise<{ logged: boolean; logId: string }> => {
-    
+
     try {
       const logEntry: LogEntry = {
         id: `LOG-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -30,7 +30,7 @@ export const aiLoggingAgent = {
 
       // Simulate DB Write
       LOG_DATABASE.push(logEntry);
-      
+
       console.groupCollapsed(`[AI AUDIT LOG] ${agentName}`);
       console.log("Timestamp:", logEntry.timestamp);
       console.log("User:", userId);

@@ -8,7 +8,7 @@ const DEFAULT_SETTINGS: SystemSettings = {
   enableAiConsultation: true,
   enableNewRegistrations: true,
   globalAnnouncement: '',
-  aiModel: 'gemini-2.5-flash'
+  aiModel: 'gemini-1.5-flash'
 };
 
 // In-memory store for simulated database

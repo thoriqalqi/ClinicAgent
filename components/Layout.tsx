@@ -2,12 +2,12 @@
 import React, { useState } from 'react';
 import { NAV_ITEMS } from '../constants';
 import { AppView, User, UserRole } from '../types';
-import { 
-  LogOut, 
-  Menu, 
-  X, 
-  Search, 
-  Bell, 
+import {
+  LogOut,
+  Menu,
+  X,
+  Search,
+  Bell,
   ShieldCheck,
   User as UserIcon,
   Settings,
@@ -27,17 +27,43 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ currentUser, currentView, setCurrentView, onLogout, children, systemName = "ClinicAgent" }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  const getNotifications = () => {
+    if (!currentUser) return [];
+    switch (currentUser.role) {
+      case UserRole.ADMIN:
+        return [
+          { id: 1, title: 'High Risk Activity', message: 'Dr. Budi has high prescription volume.', time: '2m ago', type: 'alert' },
+          { id: 2, title: 'System Audit', message: 'Daily audit log generated.', time: '1h ago', type: 'info' }
+        ];
+      case UserRole.DOCTOR:
+        return [
+          { id: 1, title: 'New Patient', message: 'Ahmad assigned to you.', time: '5m ago', type: 'info' },
+          { id: 2, title: 'Lab Results', message: 'Results for Siti are ready.', time: '30m ago', type: 'success' }
+        ];
+      case UserRole.PATIENT:
+        return [
+          { id: 1, title: 'Appointment Reminder', message: 'Consultation tomorrow at 10:00 AM.', time: '1h ago', type: 'info' },
+          { id: 2, title: 'Prescription Ready', message: 'Your prescription is ready for pickup.', time: '2h ago', type: 'success' }
+        ];
+      default:
+        return [];
+    }
+  };
+
+  const notifications = getNotifications();
 
   if (!currentUser) return <>{children}</>;
 
   const navItems = NAV_ITEMS[currentUser.role] || [];
-  
+
   const isProfileEditable = currentUser.role !== UserRole.ADMIN;
 
   return (
     <div className="flex h-screen bg-[#F2F4F7] overflow-hidden font-sans text-sm">
-      
-      <aside 
+
+      <aside
         className={`
           fixed inset-y-0 left-0 z-50 bg-white border-r border-slate-200 shadow-soft
           transition-all duration-300 ease-in-out flex flex-col
@@ -46,13 +72,13 @@ export const Layout: React.FC<LayoutProps> = ({ currentUser, currentView, setCur
           ${isCollapsed ? 'w-[110px]' : 'w-[300px]'}
         `}
       >
-        <button 
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="hidden lg:flex absolute -right-4 top-24 w-8 h-8 bg-white border border-slate-200 rounded-full items-center justify-center shadow-md text-slate-400 hover:text-primary-600 hover:scale-110 transition-all z-50"
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="hidden lg:flex absolute -right-4 top-24 w-8 h-8 bg-white border border-slate-200 rounded-full items-center justify-center shadow-md text-slate-400 hover:text-primary-600 hover:scale-110 transition-all z-50"
         >
-            {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
         </button>
-        
+
         <div className={`h-24 flex items-center ${isCollapsed ? 'justify-center px-0' : 'px-8'} transition-all duration-300 border-b border-slate-50`}>
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center text-white shadow-lg shadow-primary-500/30 shrink-0">
@@ -73,7 +99,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentUser, currentView, setCur
               Menu Utama
             </p>
           )}
-          
+
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentView === item.id;
@@ -88,23 +114,23 @@ export const Layout: React.FC<LayoutProps> = ({ currentUser, currentView, setCur
                 className={`
                   w-full flex items-center transition-all duration-300 group relative overflow-hidden
                   ${isCollapsed ? 'justify-center h-16 rounded-[2rem] px-0' : 'h-16 px-6 gap-4 rounded-[2rem]'}
-                  ${isActive 
-                    ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/30' 
+                  ${isActive
+                    ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/30'
                     : 'text-slate-500 hover:bg-slate-50 hover:text-primary-700'}
                 `}
               >
                 {isActive && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary-600 to-purple-600 opacity-100 z-0"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary-600 to-purple-600 opacity-100 z-0"></div>
                 )}
 
                 <div className="relative z-10 flex items-center justify-center w-8 h-8">
-                   <Icon size={24} className={isActive ? 'text-white' : 'text-slate-400 group-hover:text-primary-600 transition-colors'} />
+                  <Icon size={24} className={isActive ? 'text-white' : 'text-slate-400 group-hover:text-primary-600 transition-colors'} />
                 </div>
 
                 {!isCollapsed && (
                   <span className="relative z-10 font-bold text-base tracking-wide whitespace-nowrap">{item.label}</span>
                 )}
-                
+
                 {!isCollapsed && isActive && (
                   <div className="absolute right-6 w-2 h-2 rounded-full bg-white/50 shadow-inner z-10"></div>
                 )}
@@ -114,7 +140,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentUser, currentView, setCur
         </div>
 
         <div className="p-4 border-t border-slate-50">
-          <button 
+          <button
             onClick={() => isProfileEditable && setCurrentView(AppView.PROFILE)}
             disabled={!isProfileEditable}
             className={`
@@ -125,75 +151,109 @@ export const Layout: React.FC<LayoutProps> = ({ currentUser, currentView, setCur
             title={isProfileEditable ? "Edit Profil" : "Akun Administrator"}
           >
             <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
-                 {currentUser.avatar ? (
-                     <img src={currentUser.avatar} alt={currentUser.name} className="w-full h-full object-cover" />
-                 ) : (
-                    <span className="text-slate-600 font-bold text-lg">{currentUser.name.charAt(0)}</span>
-                 )}
+              {currentUser.avatar ? (
+                <img src={currentUser.avatar} alt={currentUser.name} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-slate-600 font-bold text-lg">{currentUser.name.charAt(0)}</span>
+              )}
             </div>
-            
+
             {!isCollapsed && (
-                <div className="flex-1 min-w-0 text-left animate-fade-in">
+              <div className="flex-1 min-w-0 text-left animate-fade-in">
                 <p className="text-sm font-bold text-slate-900 truncate group-hover:text-primary-700">{currentUser.name}</p>
                 <p className="text-[11px] text-slate-500 truncate capitalize font-medium flex items-center gap-1">
-                    <span className={`w-2 h-2 rounded-full ${currentUser.role === 'DOCTOR' ? 'bg-blue-500' : 'bg-emerald-500'}`}></span>
-                    {currentUser.role === 'DOCTOR' ? 'Dokter' : currentUser.role === 'ADMIN' ? 'Admin' : 'Pasien'}
+                  <span className={`w-2 h-2 rounded-full ${currentUser.role === 'DOCTOR' ? 'bg-blue-500' : 'bg-emerald-500'}`}></span>
+                  {currentUser.role === 'DOCTOR' ? 'Dokter' : currentUser.role === 'ADMIN' ? 'Admin' : 'Pasien'}
                 </p>
-                </div>
+              </div>
             )}
-            
+
             {!isCollapsed && isProfileEditable && <Settings size={20} className="text-slate-300 group-hover:text-primary-500 mr-2" />}
           </button>
-          
+
           {!isCollapsed && (
-              <button 
-                onClick={onLogout}
-                className="w-full mt-3 flex items-center justify-center gap-2 py-3 text-xs font-bold text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all"
-                >
-                <LogOut size={16} /> Keluar
+            <button
+              onClick={onLogout}
+              className="w-full mt-3 flex items-center justify-center gap-2 py-3 text-xs font-bold text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all"
+            >
+              <LogOut size={16} /> Keluar
             </button>
           )}
         </div>
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0 h-screen relative bg-[#F2F4F7]">
-        
+
         <header className="h-20 flex items-center justify-between px-6 lg:px-10 z-30 sticky top-0 bg-[#F2F4F7]/90 backdrop-blur-sm">
-           <div className="flex items-center gap-4">
-             <button 
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 text-slate-500 hover:bg-white rounded-xl transition-colors"
-             >
-               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-             </button>
-           </div>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden p-2 text-slate-500 hover:bg-white rounded-xl transition-colors"
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
 
-           <div className="flex items-center gap-6">
-              <div className="hidden md:flex items-center bg-white shadow-sm rounded-full px-5 py-3 w-80 focus-within:ring-4 focus-within:ring-primary-100 transition-all border border-slate-100">
-                <Search size={18} className="text-slate-400 mr-3" />
-                <input 
-                  type="text" 
-                  placeholder="Cari apa saja..." 
-                  className="bg-transparent border-none outline-none text-sm text-slate-700 w-full placeholder:text-slate-400 font-medium"
-                />
-             </div>
+          <div className="flex items-center gap-6">
+            <div className="hidden md:flex items-center bg-white shadow-sm rounded-full px-5 py-3 w-80 focus-within:ring-4 focus-within:ring-primary-100 transition-all border border-slate-100">
+              <Search size={18} className="text-slate-400 mr-3" />
+              <input
+                type="text"
+                placeholder="Cari apa saja..."
+                className="bg-transparent border-none outline-none text-sm text-slate-700 w-full placeholder:text-slate-400 font-medium"
+              />
+            </div>
 
-              <button className="relative p-3 bg-white rounded-full text-slate-400 hover:text-primary-600 hover:shadow-md transition-all border border-slate-100">
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-3 bg-white rounded-full text-slate-400 hover:text-primary-600 hover:shadow-md transition-all border border-slate-100"
+              >
                 <Bell size={20} />
-                <span className="absolute top-2.5 right-3 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                {notifications.length > 0 && (
+                  <span className="absolute top-2.5 right-3 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                )}
               </button>
-           </div>
+
+              {showNotifications && (
+                <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50 animate-fade-in">
+                  <div className="p-4 border-b border-slate-50 bg-slate-50/50 flex justify-between items-center">
+                    <h3 className="font-bold text-slate-800">Notifikasi</h3>
+                    <span className="text-xs font-bold text-primary-600 bg-primary-50 px-2 py-1 rounded-lg">{notifications.length} Baru</span>
+                  </div>
+                  <div className="max-h-[300px] overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="p-8 text-center text-slate-400 text-xs">Tidak ada notifikasi baru</div>
+                    ) : (
+                      notifications.map(notif => (
+                        <div key={notif.id} className="p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer">
+                          <div className="flex justify-between items-start mb-1">
+                            <h4 className="font-bold text-slate-800 text-sm">{notif.title}</h4>
+                            <span className="text-[10px] text-slate-400 font-medium">{notif.time}</span>
+                          </div>
+                          <p className="text-xs text-slate-500 leading-relaxed">{notif.message}</p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div className="p-3 bg-slate-50 text-center border-t border-slate-100">
+                    <button className="text-xs font-bold text-primary-600 hover:text-primary-700">Tandai semua dibaca</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </header>
 
         <main className="flex-1 overflow-y-auto scroll-smooth">
-           <div className="max-w-[1600px] mx-auto w-full pb-10">
-             {children}
-           </div>
+          <div className="max-w-[1600px] mx-auto w-full pb-10">
+            {children}
+          </div>
         </main>
       </div>
 
       {isMobileMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         ></div>

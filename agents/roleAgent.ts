@@ -1,5 +1,5 @@
 
-import { RoleAgentInput, RoleAgentOutput } from './schemas';
+import { RoleAgentInput, RoleAgentOutput } from '../types';
 import { UserRole } from '../types';
 
 export const roleDecisionAgent = {

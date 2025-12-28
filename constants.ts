@@ -1,11 +1,11 @@
 
 import { Patient, UserRole, User, AppView } from './types';
-import { 
-  LayoutDashboard, 
-  Stethoscope, 
-  Pill, 
-  Siren, 
-  FileText, 
+import {
+  LayoutDashboard,
+  Stethoscope,
+  Pill,
+  Siren,
+  FileText,
   Users,
   Settings,
   ShieldAlert,
@@ -91,6 +91,30 @@ export const MOCK_USERS: User[] = [
     password: 'password123'
   },
   {
+    id: 'D005',
+    name: 'Dr. Eka Putri',
+    email: 'eka@healthtown.com',
+    role: UserRole.DOCTOR,
+    status: 'ACTIVE',
+    clinic: 'Klinik Mata Sejahtera',
+    specialization: 'Spesialis Mata',
+    strNumber: 'STR-3344556677',
+    experienceYears: 7,
+    password: 'password123'
+  },
+  {
+    id: 'D006',
+    name: 'Dr. Fajar Nugraha',
+    email: 'fajar@healthtown.com',
+    role: UserRole.DOCTOR,
+    status: 'ACTIVE',
+    clinic: 'RS Bedah Sentosa',
+    specialization: 'Bedah Umum',
+    strNumber: 'STR-9988776655',
+    experienceYears: 10,
+    password: 'password123'
+  },
+  {
     id: 'A001',
     name: 'Admin Sistem',
     email: 'admin@healthtown.com',
@@ -102,6 +126,22 @@ export const MOCK_USERS: User[] = [
     id: 'U001',
     name: 'Budi Santoso',
     email: 'budi@email.com',
+    role: UserRole.PATIENT,
+    status: 'ACTIVE',
+    password: 'password'
+  },
+  {
+    id: 'U002',
+    name: 'Siti Aminah',
+    email: 'siti@email.com',
+    role: UserRole.PATIENT,
+    status: 'ACTIVE',
+    password: 'password'
+  },
+  {
+    id: 'U003',
+    name: 'Rudi Hermawan',
+    email: 'rudi@email.com',
     role: UserRole.PATIENT,
     status: 'ACTIVE',
     password: 'password'
@@ -118,7 +158,7 @@ export const NAV_ITEMS = {
   ],
   [UserRole.DOCTOR]: [
     { id: AppView.DASHBOARD, label: 'Beranda', icon: LayoutDashboard },
-    { id: AppView.DOCTOR_PATIENTS, label: 'Pasien Saya', icon: Users }, 
+    { id: AppView.DOCTOR_PATIENTS, label: 'Pasien Saya', icon: Users },
     { id: AppView.CONSULTATION, label: 'Asisten Medis AI', icon: Stethoscope },
     { id: AppView.PRESCRIPTION, label: 'Tulis Resep', icon: Pill },
     { id: AppView.RECORDS, label: 'Rekam Medis', icon: FileText },

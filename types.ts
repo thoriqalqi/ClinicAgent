@@ -19,10 +19,10 @@ export interface User {
   age?: number;
   gender?: 'Male' | 'Female';
   phone?: string;
-  
+
   // Doctor specific fields
   clinic?: string;
-  strNumber?: string; 
+  strNumber?: string;
   specialization?: string;
   experienceYears?: number; // Added for Doctor Search Agent
 }
@@ -112,7 +112,7 @@ export interface MedicalTimelineItem {
   provider: string; // Doctor or Clinic name
   summary: string;
   tags: string[];
-  status?: 'COMPLETED' | 'PENDING' | 'CANCELLED' | 'ACTIVE';
+  status?: 'COMPLETED' | 'PENDING' | 'CANCELLED' | 'ACTIVE' | 'SENT_TO_PHARMACY' | 'PENDING_VERIFICATION';
   attachmentUrl?: string;
   details?: string; // JSON string containing full details (items, advice, analysis etc)
 }
@@ -130,4 +130,85 @@ export enum AppView {
   ADMIN_TRANSPARENCY = 'ADMIN_TRANSPARENCY', // New View
   DOCTOR_ASSESSMENT = 'DOCTOR_ASSESSMENT',
   DOCTOR_PATIENTS = 'DOCTOR_PATIENTS'
+}
+
+// --- Added Consultation Types ---
+
+export interface ConsultationInput {
+  patientId: string;
+  age: number;
+  gender: string;
+  symptoms: string[];
+  duration: string;
+  painLevel: number;
+  history: string[];
+  notes: string;
+  patientName?: string;
+  weight?: number;
+}
+
+export interface PrimaryAction {
+  category: 'SELF_CARE' | 'OTC_MEDICATION' | 'DOCTOR_CONSULT' | 'EMERGENCY';
+  reason: string;
+  next_step: string;
+}
+
+export interface ConsultationOutput {
+  analysis: string;
+  possible_conditions: string[];
+  recommended_actions: string[];
+  danger_signs: string[];
+  doctor_referral_needed: boolean;
+  recommended_specialist: string | null;
+  urgency_level: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  primary_action: PrimaryAction;
+}
+
+// --- Added Doctor Search Types ---
+
+export interface DoctorSearchInput {
+  specialist: string;
+}
+
+export interface DoctorSearchResult {
+  id: string;
+  name: string;
+  specialist: string;
+  experience_years: number;
+  is_verified: boolean;
+  is_active: boolean;
+  clinic?: string;
+}
+
+export interface DoctorSearchOutput {
+  doctors: DoctorSearchResult[];
+}
+
+// --- Added Logging Types ---
+
+export interface LogEntry {
+  id: string;
+  timestamp: string;
+  agent_name: string;
+  user_id: string;
+  payload: any;
+  response: any;
+  status: 'SUCCESS' | 'FAILURE';
+}
+
+// --- Added Role Agent Types ---
+
+export interface RoleAgentInput {
+  role: string;
+}
+
+export interface RoleAgentOutput {
+  role: string;
+  permissions: string[];
+  ui_config: {
+    show_dashboard: boolean;
+    show_records: boolean;
+    show_admin_panel: boolean;
+    can_prescribe: boolean;
+  };
 }

@@ -1,6 +1,5 @@
 
-import { ConsultationOutput } from '../agents/schemas';
-import { DoctorSearchResult } from '../agents/schemas';
+import { ConsultationOutput, DoctorSearchResult } from '../types';
 import { userService } from './userService';
 
 export interface ConsultationRecord {
@@ -40,7 +39,7 @@ export const consultationService = {
     suggestedDoctors: DoctorSearchResult[]
   ): Promise<ConsultationRecord> => {
     await delay(300);
-    
+
     const record: ConsultationRecord = {
       id: `CONS-${Date.now()}`,
       patientId,
@@ -61,14 +60,14 @@ export const consultationService = {
   getPatientHistory: async (patientId: string): Promise<ConsultationRecord[]> => {
     await delay(300);
     const records = CONSULTATION_DB.filter(c => c.patientId === patientId);
-    
+
     // Map records to include their specific appointment status if it exists
     return records.map(record => {
-        const appointment = APPOINTMENT_DB.find(a => a.consultationId === record.id);
-        return {
-            ...record,
-            appointment // Will be undefined if not booked, or the Appointment object if booked
-        };
+      const appointment = APPOINTMENT_DB.find(a => a.consultationId === record.id);
+      return {
+        ...record,
+        appointment // Will be undefined if not booked, or the Appointment object if booked
+      };
     });
   },
 
@@ -85,27 +84,27 @@ export const consultationService = {
    */
   bookAppointment: async (consultationId: string, doctorId: string): Promise<boolean> => {
     await delay(500);
-    
+
     const consultation = CONSULTATION_DB.find(c => c.id === consultationId);
     if (!consultation) {
-        console.error("Consultation not found during booking");
-        return false;
+      console.error("Consultation not found during booking");
+      return false;
     }
-    
+
     // Check if already booked to prevent duplicates at service level
     const existing = APPOINTMENT_DB.find(a => a.consultationId === consultationId);
     if (existing) {
-        console.log("Appointment already exists for this consultation");
-        return true; // Return true as it is technically "booked"
+      console.log("Appointment already exists for this consultation");
+      return true; // Return true as it is technically "booked"
     }
 
     const newAppointment: Appointment = {
-        id: `APT-${Date.now()}`,
-        doctorId,
-        patientId: consultation.patientId,
-        consultationId,
-        status: 'PENDING',
-        timestamp: new Date().toISOString()
+      id: `APT-${Date.now()}`,
+      doctorId,
+      patientId: consultation.patientId,
+      consultationId,
+      status: 'PENDING',
+      timestamp: new Date().toISOString()
     };
 
     APPOINTMENT_DB.unshift(newAppointment);
@@ -117,13 +116,13 @@ export const consultationService = {
    * Update appointment status (Doctor Action)
    */
   updateAppointmentStatus: async (appointmentId: string, status: 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'): Promise<boolean> => {
-      await delay(400);
-      const index = APPOINTMENT_DB.findIndex(a => a.id === appointmentId);
-      if (index !== -1) {
-          APPOINTMENT_DB[index] = { ...APPOINTMENT_DB[index], status };
-          return true;
-      }
-      return false;
+    await delay(400);
+    const index = APPOINTMENT_DB.findIndex(a => a.id === appointmentId);
+    if (index !== -1) {
+      APPOINTMENT_DB[index] = { ...APPOINTMENT_DB[index], status };
+      return true;
+    }
+    return false;
   },
 
   /**
@@ -131,42 +130,42 @@ export const consultationService = {
    */
   getDoctorAppointments: async (doctorId: string): Promise<any[]> => {
     await delay(400);
-    
+
     const doctorApts = APPOINTMENT_DB.filter(apt => apt.doctorId === doctorId);
     const users = await userService.getUsers();
 
     // Join Data
     const joinedData = doctorApts.map(apt => {
-        const patient = users.find(u => u.id === apt.patientId);
-        const consultation = CONSULTATION_DB.find(c => c.id === apt.consultationId);
-        
-        return {
-            appointmentId: apt.id,
-            status: apt.status,
-            timestamp: apt.timestamp,
-            patient: patient ? {
-                id: patient.id,
-                name: patient.name,
-                email: patient.email,
-                role: patient.role // Useful to know
-            } : { id: 'UNKNOWN', name: 'Unknown Patient', email: '' },
-            consultation: consultation ? {
-                id: consultation.id,
-                summary: consultation.result.analysis,
-                urgency: consultation.result.urgency_level,
-                symptoms: consultation.input.symptoms,
-                primaryCondition: consultation.result.possible_conditions[0] || 'Undiagnosed',
-                // Full details for review
-                age: consultation.input.age,
-                gender: consultation.input.gender,
-                duration: consultation.input.duration,
-                notes: consultation.input.notes,
-                possibleConditions: consultation.result.possible_conditions,
-                recommendedActions: consultation.result.recommended_actions
-            } : null
-        };
+      const patient = users.find(u => u.id === apt.patientId);
+      const consultation = CONSULTATION_DB.find(c => c.id === apt.consultationId);
+
+      return {
+        appointmentId: apt.id,
+        status: apt.status,
+        timestamp: apt.timestamp,
+        patient: patient ? {
+          id: patient.id,
+          name: patient.name,
+          email: patient.email,
+          role: patient.role // Useful to know
+        } : { id: 'UNKNOWN', name: 'Unknown Patient', email: '' },
+        consultation: consultation ? {
+          id: consultation.id,
+          summary: consultation.result.analysis,
+          urgency: consultation.result.urgency_level,
+          symptoms: consultation.input.symptoms,
+          primaryCondition: consultation.result.possible_conditions[0] || 'Undiagnosed',
+          // Full details for review
+          age: consultation.input.age,
+          gender: consultation.input.gender,
+          duration: consultation.input.duration,
+          notes: consultation.input.notes,
+          possibleConditions: consultation.result.possible_conditions,
+          recommendedActions: consultation.result.recommended_actions
+        } : null
+      };
     });
-    
+
     // Sort by timestamp descending (newest first)
     return joinedData.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   }
